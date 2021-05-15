@@ -8,7 +8,7 @@
         >
             <div class="form">
                 <div class="title">
-                    Create a channel
+                    Create channel
                 </div>
                 <input v-model="model.name" class="input-name" placeholder="Name"/>
                 <input v-model="model.rssUrl" class="input-address" placeholder="RSS address"/>

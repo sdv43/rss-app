@@ -22,7 +22,7 @@
 <!--            </a>-->
         </div>
         <div class="text">
-            If you do not have an account, it will be created during the first authorization.
+            If you do not have an account, it will be created with the first authorization.
         </div>
     </Page>
 </template>

@@ -21,7 +21,7 @@
                 You don't have any RSS feeds yet!
             </div>
             <div>
-                <router-link :to="{name: 'channels'}" class="button-create-channel">Create a channel</router-link>
+                <router-link :to="{name: 'channels'}" class="button-create-channel">Create channel</router-link>
             </div>
         </div>
     </Page>

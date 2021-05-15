@@ -10,7 +10,7 @@
                 {{ userGet.name }}
             </div>
             <div class="auth-description">
-                You are signed by {{ userGet.provider }}
+                You are signed in with {{ userGet.provider }}
             </div>
         </div>
         <div class="menu">

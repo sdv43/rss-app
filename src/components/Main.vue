@@ -15,7 +15,7 @@
             <div>RSS App</div>
         </div>
         <div class="buttons">
-            <router-link :to="{name: 'sign-in'}" class="button-try-it">Try it</router-link>
+            <router-link :to="{name: 'sign-in'}" class="button-try-it">Give it a try</router-link>
         </div>
     </Page>
 </template>
