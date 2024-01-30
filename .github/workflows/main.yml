@@ -1,0 +1,47 @@
+on:
+  workflow_dispatch: {}
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'yarn'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+      - run: composer install --no-dev --optimize-autoloader
+        working-directory: packages/api
+      - run: yarn --frozen-lockfile
+      - run: yarn build
+      - run: cp -r packages/pwa/dist/* packages/api/public
+      - run: tar -czf app.tar.gz -C packages/api .
+      - name: 'Upload Artifact'
+        uses: actions/upload-artifact@v4
+        with:
+          name: app.tar.gz
+          path: app.tar.gz
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      SSH_KEY: ${{ secrets.SSH_KEY }}
+      SSH_USER: ${{ secrets.SSH_USER }}
+      SSH_HOST: ${{ vars.SSH_HOST }}
+    needs: build
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: app.tar.gz
+      - run: echo "$SSH_KEY" | tr -d '\r' > id_rsa
+      - run: chmod 600 id_rsa
+      - run: ssh-keyscan -H $SSH_HOST > khosts
+      - run: ssh -o GlobalKnownHostsFile=khosts -i id_rsa $SSH_USER@$SSH_HOST "mkdir ~/apps/rss-app/$GITHUB_REF_NAME"
+      - run: cat app.tar.gz | ssh -o GlobalKnownHostsFile=khosts -i id_rsa $SSH_USER@$SSH_HOST "cat | tar -xz -C ~/apps/rss-app/$GITHUB_REF_NAME"
+      - run: ssh -o GlobalKnownHostsFile=khosts -i id_rsa $SSH_USER@$SSH_HOST "/opt/php/8.3/bin/php -f ~/apps/rss-app/$GITHUB_REF_NAME/vendor/bin/phinx -- migrate --configuration="'$HOME'"/apps/rss-app/$GITHUB_REF_NAME/phinx.php"
+      - run: ssh -o GlobalKnownHostsFile=khosts -i id_rsa $SSH_USER@$SSH_HOST "ln -sfn ~/apps/rss-app/$GITHUB_REF_NAME ~/apps/rss-app/current"

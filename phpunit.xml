@@ -1,5 +1,0 @@
-<phpunit
-        bootstrap="tests/bootstrap.php"
-        cacheResult="false"
->
-</phpunit>

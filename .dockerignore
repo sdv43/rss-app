@@ -1,0 +1,15 @@
+.git
+.vscode
+docker
+node_modules
+*.sh
+docker-compose.*
+
+packages/api/tests
+packages/api/resources
+packages/api/vendor
+packages/api/.env*
+packages/api/phpunit.xml
+
+packages/pwa/dist
+packages/pwa/node_modules
