@@ -6,6 +6,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: production
+    env:
+      APP_SERVER_KEY: ${{ vars.APP_SERVER_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -17,6 +20,8 @@ jobs:
           php-version: '8.3'
       - run: composer install --no-dev --optimize-autoloader
         working-directory: packages/api
+      - run: echo "VITE_APP_SERVER_KEY='$APP_SERVER_KEY'" > .env
+        working-directory: packages/pwa
       - run: yarn --frozen-lockfile
       - run: yarn build
       - run: cp -r packages/pwa/dist/* packages/api/public
