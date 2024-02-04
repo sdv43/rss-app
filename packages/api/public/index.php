@@ -6,6 +6,7 @@ use Sdv43\RssApp\Routes\Api\FeedHandler;
 use Sdv43\RssApp\Routes\Api\SettingsHandler;
 use Sdv43\RssApp\Routes\Api\AuthHandler;
 use Sdv43\RssApp\Routes\Api\StoryHandler;
+use Sdv43\RssApp\Routes\WebPush;
 use Slim\Factory\AppFactory;
 use Slim\Routing\RouteCollectorProxy;
 
@@ -26,6 +27,9 @@ $app->group('/api', function (RouteCollectorProxy $group) use ($app) {
     $group->get('/sign-out', [AuthHandler::class, 'signOut']);
 
     $group->group('', function () use ($group) {
+        $group->post('/push-subscription', [WebPush::class, 'create']);
+        $group->put('/push-subscription', [WebPush::class, 'update']);
+        $group->delete('/push-subscription', [WebPush::class, 'delete']);
         $group->post('/code', [AuthHandler::class, 'updateCode']);
         $group->get('/settings', [SettingsHandler::class, 'get']);
         $group->put('/settings', [SettingsHandler::class, 'update']);

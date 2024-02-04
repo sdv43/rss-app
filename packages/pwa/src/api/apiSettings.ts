@@ -2,8 +2,9 @@ import { handleErrorResponse } from '.'
 
 export interface ISettings {
   code: string
-  notifications_period: string
+  notifications: string
   theme: 'light' | 'dark' | 'auto'
+  subscription: string | null
 }
 
 export const apiSettingsGet = async () => {
@@ -18,9 +19,11 @@ export const apiSettingsGet = async () => {
   return (await response.json()) as ISettings
 }
 
-export const apiSettingsUpdate = async (settings: Omit<ISettings, 'code'>) => {
+export const apiSettingsUpdate = async (
+  settings: Omit<ISettings, 'code' | 'subscription'>
+) => {
   const body = new URLSearchParams()
-  body.append('notifications_period', settings.notifications_period)
+  body.append('notifications', settings.notifications)
   body.append('theme', settings.theme)
 
   const response = await fetch('/api/settings', {

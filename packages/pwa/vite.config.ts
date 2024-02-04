@@ -44,7 +44,9 @@ export default defineConfig(({ mode }) => {
     plugins: [
       preact(),
       VitePWA({
-        registerType: null,
+        strategies: 'injectManifest',
+        srcDir: 'src',
+        filename: 'sw.ts',
         manifest: {
           theme_color: '#fcfcfd',
           background_color: '#fcfcfd',
@@ -54,6 +56,10 @@ export default defineConfig(({ mode }) => {
           name: isProduction ? 'RSS Reader' : 'RSS Reader Dev',
           short_name: isProduction ? 'RSS' : 'RSS Dev',
           icons: generateIcons(),
+        },
+        devOptions: {
+          enabled: true,
+          type: 'module',
         },
       }),
     ],

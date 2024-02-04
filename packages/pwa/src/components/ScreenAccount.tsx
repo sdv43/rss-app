@@ -7,11 +7,14 @@ import {
   apiSettingsGet,
   apiSettingsUpdate,
   apiSignOut,
+  apiPushSubscriptionCreate,
+  apiPushSubscriptionDelete,
 } from '../api'
 import { useSignalEffect } from '@preact/signals'
 import { route } from 'preact-router'
 import { ComponentProps } from 'preact'
 import { Button } from './Button'
+import { APP_SERVER_KEY } from '../constants'
 
 interface IProps {
   path: string
@@ -19,10 +22,11 @@ interface IProps {
 
 export const ScreenAccount = (_props: IProps) => {
   const [isLoading, setIsLoading] = useState(false)
+  const [isNotificationsLoading, setIsNotificationsLoading] = useState(false)
   const [isCodeLoading, setIsCodeLoading] = useState(false)
   const [isSignOutLoading, setIsSignOutLoading] = useState(false)
   const [code, setCode] = useState<ISettings['code']>('')
-  const [notif, setNotif] = useState<ISettings['notifications_period']>('')
+  const [notif, setNotif] = useState<ISettings['notifications']>('')
   const [theme, setTheme] = useState<ISettings['theme']>('auto')
   const { settings, resetState } = useContext(State)
 
@@ -32,7 +36,7 @@ export const ScreenAccount = (_props: IProps) => {
     }
 
     setCode(settings.value.code)
-    setNotif(settings.value.notifications_period)
+    setNotif(settings.value.notifications)
     setTheme(settings.value.theme)
   })
 
@@ -44,7 +48,7 @@ export const ScreenAccount = (_props: IProps) => {
       event.preventDefault()
 
       await apiSettingsUpdate({
-        notifications_period: notif,
+        notifications: notif,
         theme,
       })
 
@@ -78,6 +82,87 @@ export const ScreenAccount = (_props: IProps) => {
       alert(error)
     } finally {
       setIsCodeLoading(false)
+    }
+  }
+
+  const handleToggleNotifications = async () => {
+    try {
+      setIsNotificationsLoading(true)
+
+      if (import.meta.env.DEV) {
+        if (settings.value?.subscription) {
+          await apiPushSubscriptionDelete()
+        } else {
+          if (Notification.permission !== 'granted') {
+            await Notification.requestPermission()
+          }
+
+          if (Notification.permission !== 'granted') {
+            alert(
+              'You have disabled notifications in your browser settings. If you want to recieve notificatoins you should switch this option to enable.'
+            )
+            return
+          }
+
+          await apiPushSubscriptionCreate(
+            JSON.stringify({
+              endpoint: 'https://push-api.server/send/fB526bov5pg:123456',
+              expirationTime: null,
+              keys: {
+                p256dh: 'p256h',
+                auth: 'auth-key',
+              },
+            })
+          )
+        }
+
+        return
+      }
+
+      const swRegistration = await navigator.serviceWorker.getRegistration()
+
+      if (!swRegistration) {
+        alert('You does not have a registered service worker')
+        return
+      }
+
+      if (settings.value?.subscription) {
+        let subscription = await swRegistration.pushManager.getSubscription()
+
+        if (subscription) {
+          await subscription.unsubscribe()
+        }
+
+        await apiPushSubscriptionDelete()
+      } else {
+        if ((await Notification.requestPermission()) !== 'granted') {
+          alert(
+            'You have disabled notifications in your browser settings. If you want to recieve notificatoins you should switch this option to enable.'
+          )
+          return
+        }
+
+        let subscription = await swRegistration.pushManager.getSubscription()
+
+        if (!subscription) {
+          subscription = await swRegistration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: APP_SERVER_KEY,
+          })
+
+          if (!subscription) {
+            alert('Cannot subscribe to push notifications')
+            return
+          }
+        }
+
+        await apiPushSubscriptionCreate(JSON.stringify(subscription.toJSON()))
+      }
+    } catch (error) {
+      alert(error)
+    } finally {
+      settings.value = await apiSettingsGet()
+      setIsNotificationsLoading(false)
     }
   }
 
@@ -129,6 +214,15 @@ export const ScreenAccount = (_props: IProps) => {
             onInput={(e) => setNotif((e.target as HTMLInputElement).value)}
           />
         </label>
+
+        <Button
+          isLoading={isNotificationsLoading}
+          className={'button--secondary'}
+          type={'button'}
+          onClick={() => handleToggleNotifications()}
+        >
+          {settings.value?.subscription ? 'Disable' : 'Enable'} notifications
+        </Button>
 
         <div className={'form-control'}>
           <span className={'form-control_label'}>Theme</span>
