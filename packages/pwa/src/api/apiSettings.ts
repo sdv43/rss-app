@@ -1,7 +1,7 @@
 import { handleErrorResponse } from '.'
 
 export interface ISettings {
-  code: string
+  password: string
   notifications: string
   theme: 'light' | 'dark' | 'auto'
   subscription: string | null
@@ -20,7 +20,7 @@ export const apiSettingsGet = async () => {
 }
 
 export const apiSettingsUpdate = async (
-  settings: Omit<ISettings, 'code' | 'subscription'>
+  settings: Omit<ISettings, 'password' | 'subscription'>
 ) => {
   const body = new URLSearchParams()
   body.append('notifications', settings.notifications)

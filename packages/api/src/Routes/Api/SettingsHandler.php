@@ -14,7 +14,7 @@ class SettingsHandler
         $storage = Storage::getInstance();
         $accountId = $request->getAttribute('accountId');
 
-        $stmt = $storage->prepare('select code, theme, subscription from accounts where id = ? limit 1');
+        $stmt = $storage->prepare('select password, theme, subscription from accounts where id = ? limit 1');
         $stmt->execute([$accountId]);
 
         $account = $stmt->fetch(\PDO::FETCH_ASSOC);

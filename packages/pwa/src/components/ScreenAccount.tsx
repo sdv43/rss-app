@@ -25,7 +25,7 @@ export const ScreenAccount = (_props: IProps) => {
   const [isNotificationsLoading, setIsNotificationsLoading] = useState(false)
   const [isCodeLoading, setIsCodeLoading] = useState(false)
   const [isSignOutLoading, setIsSignOutLoading] = useState(false)
-  const [code, setCode] = useState<ISettings['code']>('')
+  const [code, setCode] = useState<ISettings['password']>('')
   const [notif, setNotif] = useState<ISettings['notifications']>('')
   const [theme, setTheme] = useState<ISettings['theme']>('auto')
   const { settings, resetState } = useContext(State)
@@ -35,7 +35,7 @@ export const ScreenAccount = (_props: IProps) => {
       return
     }
 
-    setCode(settings.value.code)
+    setCode(settings.value.password)
     setNotif(settings.value.notifications)
     setTheme(settings.value.theme)
   })

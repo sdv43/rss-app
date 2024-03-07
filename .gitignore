@@ -1,5 +1,6 @@
 vendor
 .vscode
+.idea
 node_modules
 releases
 .DS_Store

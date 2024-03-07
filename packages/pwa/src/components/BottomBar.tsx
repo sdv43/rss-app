@@ -9,7 +9,7 @@ export const BottomBar = ({}: IProps) => {
       <Link
         className={'bottom-bar_item'}
         activeClassName="bottom-bar_item--selected"
-        href={'/'}
+        href={'/stories'}
       >
         <Newspaper />
       </Link>

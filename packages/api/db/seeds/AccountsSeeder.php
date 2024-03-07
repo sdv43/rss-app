@@ -19,7 +19,10 @@ class AccountsSeeder extends AbstractSeed
         $this
             ->table('accounts')
             ->insert([
-                ['code' => '123456']
+                [
+                    'email' => 'q.selivestrov@gmail.com',
+                    'password' => '$2y$10$Q5XE3m5ZHdGFe7lo5eFJv.DAadgVta4la3BnWjOgeG82JsSlij4PS'
+                ]
             ])
             ->save();
     }

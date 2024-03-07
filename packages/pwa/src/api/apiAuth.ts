@@ -1,8 +1,9 @@
 import { handleErrorResponse } from '.'
 
-export const apiSignIn = async (code: string) => {
+export const apiSignIn = async (email: string, password: string) => {
   const body = new FormData()
-  body.append('code', code)
+  body.append('password', password)
+  body.append('email', email)
 
   const response = await fetch('/api/sign-in', {
     method: 'post',

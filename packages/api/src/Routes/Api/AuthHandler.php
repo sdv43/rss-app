@@ -13,14 +13,15 @@ class AuthHandler
     {
         $storage = Storage::getInstance();
         $input = $request->getParsedBody();
-        $code = (string) ($input['code'] ?? '');
+        $email = (string) ($input['email'] ?? '');
+        $password = (string) ($input['password'] ?? '');
 
-        $stmt = $storage->prepare("select id from accounts where code = ? limit 1");
-        $stmt->execute([$code]);
+        $stmt = $storage->prepare("select id, password from accounts where email = ? limit 1");
+        $stmt->execute([$email]);
 
         $account = $stmt->fetch();
 
-        if ($account) {
+        if ($account && password_verify($password, $account['password'])) {
             $stmt = $storage->prepare("update accounts set last_sign_in = now() where id = ? limit 1");
             $stmt->execute([$account['id']]);
 
@@ -28,7 +29,7 @@ class AuthHandler
 
             return jsonify($response);
         } else {
-            throw new HttpUnauthorizedException($request, 'Incorrect code');
+            throw new HttpUnauthorizedException($request, 'Incorrect email or password');
         }
     }
 

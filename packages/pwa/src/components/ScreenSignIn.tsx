@@ -1,7 +1,7 @@
 import { useState, useContext } from 'preact/hooks'
-import { apiSignIn, apiCodeGet } from '../api'
+import { apiSignIn } from '../api'
 import { UNKNOWN_ERROR_MESSAGE } from '../constants'
-import { route } from 'preact-router'
+import { Link, route } from 'preact-router'
 import { State } from '../store'
 import { ComponentProps } from 'preact'
 import { Button } from './Button'
@@ -13,8 +13,6 @@ interface IProps {
 export const ScreenSignIn = (_props: IProps) => {
   const { loadData } = useContext(State)
   const [isLoading, setIsLoading] = useState(false)
-  const [isCodeLoading, setIsCodeLoading] = useState(false)
-  const [code, setCode] = useState('')
   const [errMsg, setErrMsg] = useState('')
 
   const handleSubmit: ComponentProps<'form'>['onSubmit'] = async (event) => {
@@ -24,10 +22,12 @@ export const ScreenSignIn = (_props: IProps) => {
       setIsLoading(true)
       setErrMsg('')
 
-      await apiSignIn(code)
+      const data = new FormData(event.target as HTMLFormElement)
+
+      await apiSignIn(`${data.get('email')}`, `${data.get('password')}`)
       await loadData()
 
-      route('/')
+      route('/stories')
     } catch (error: any) {
       if ('message' in error) {
         setErrMsg(error.message)
@@ -37,23 +37,6 @@ export const ScreenSignIn = (_props: IProps) => {
       }
     } finally {
       setIsLoading(false)
-    }
-  }
-
-  const handleGenerateCode = async () => {
-    try {
-      setIsCodeLoading(true)
-      setErrMsg('')
-      setCode((await apiCodeGet()).code)
-    } catch (error: any) {
-      if ('message' in error) {
-        setErrMsg(error.message)
-      } else {
-        setErrMsg(UNKNOWN_ERROR_MESSAGE)
-        console.error(error)
-      }
-    } finally {
-      setIsCodeLoading(false)
     }
   }
 
@@ -71,11 +54,18 @@ export const ScreenSignIn = (_props: IProps) => {
         <label>
           <input
             className={'input page-sign-in_code-input'}
-            type={'text'}
-            name="code"
-            value={code}
-            placeholder={'Code'}
-            onInput={(e) => setCode((e.target as HTMLInputElement).value)}
+            type={'email'}
+            name="email"
+            placeholder={'Email'}
+          />
+        </label>
+
+        <label>
+          <input
+            className={'input page-sign-in_code-input'}
+            type={'password'}
+            name="password"
+            placeholder={'Password'}
           />
         </label>
 
@@ -83,14 +73,13 @@ export const ScreenSignIn = (_props: IProps) => {
           {isLoading ? 1 : 'Sign In'}
         </Button>
 
-        <Button
-          className={'button--secondary page-sign-in_gen-code-button'}
+        <Link
+          href="/sign-up"
+          className={'button button--secondary page-sign-in_gen-code-button'}
           type={'button'}
-          isLoading={isCodeLoading}
-          onClick={handleGenerateCode}
         >
-          Generate code
-        </Button>
+          Create account
+        </Link>
       </form>
     </div>
   )

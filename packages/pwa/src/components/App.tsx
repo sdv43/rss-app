@@ -49,7 +49,7 @@ export function App() {
         )}
       >
         <Router onChange={handleRouteChange}>
-          <ScreenStories path="/" />
+          <ScreenStories path="/stories" />
           <ScreenFeeds path="/feeds" />
           <ScreenBookmarks path="/bookmarks" />
           <ScreenAccount path="/account" />
